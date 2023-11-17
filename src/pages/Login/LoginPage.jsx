@@ -5,6 +5,7 @@ import ErrorText from "../../ui/ErrorText/ErrorText";
 import MyButton from "../../ui/MyButton/MyButton";
 import Modal from "../../Components/Modal/Modal";
 import { useCallback, useState } from "react";
+import loginUser from "../../api/Login";
 
 export default function Login() {
   const [isShowModal, setIsShowModal] = useState(false);
@@ -35,36 +36,20 @@ export default function Login() {
       return errors;
     },
     onSubmit: async ({email, password}) => {
-      const values = {
-        email: email.toLocaleLowerCase(),
-        password
-      }
       setServerErrorMessage("");
       try {
         setIsLoading(true);
-        const result = await fetch("https://example.com/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        });
-        const data = await result.json();
-        if (!result.ok) {
-          if (data?.message) {
-            setServerErrorMessage(data.message);
-          }
-          return;
-        }
+        const data = await loginUser(email.toLocaleLowerCase(), password);
+        console.log("token", data.token);
         setIsShowModal(true);
       } catch (error) {
-        console.log("Ошибка запроса");
+        setServerErrorMessage(error.message);
       } finally{
         setIsLoading(false);
       }
     },
   });
-
+  
   return (
     <div className={s["container"]}>
       <div className={s["container__form-block"]}>
